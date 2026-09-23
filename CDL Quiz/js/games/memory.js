@@ -1,0 +1,8 @@
+(function(){
+  'use strict'; window.Games=window.Games||{};
+  Games.memory={
+    init(stage,theme){this.stage=stage;this.open=[];this.matched=0;this.attempts=0;this.locked=false;this.pairs=UI.shuffle(theme.pairs).slice(0,6);this.render()},destroy(){clearTimeout(this.timer);this.stage=null},
+    render(){const cards=UI.shuffle(this.pairs.flatMap((pair,id)=>pair.map((text,side)=>({id,text,side}))));const grid=UI.el('div','memory-grid');cards.forEach(card=>{const b=UI.el('button','memory-card');b.dataset.id=card.id;b.setAttribute('aria-label','Virar carta');b.innerHTML=`<span class="card-inner"><span class="card-face card-back">${UI.svg('memory')}</span><span class="card-face card-front"></span></span>`;b.querySelector('.card-front').textContent=card.text;b.onclick=()=>this.flip(b,card);grid.append(b)});this.stage.replaceChildren(grid)},
+    flip(button,card){if(this.locked||button.classList.contains('open')||button.classList.contains('matched'))return;button.classList.add('open');this.open.push({button,card});Sound.play('click');if(this.open.length<2)return;this.attempts++;App.setExtra(`Tentativas ${this.attempts}`);const [a,b]=this.open;if(a.card.id===b.card.id&&a.card.side!==b.card.side){a.button.classList.add('matched');b.button.classList.add('matched');a.button.disabled=b.button.disabled=true;this.open=[];this.matched++;App.addScore(120,b.button);Sound.play('correct');if(this.matched===this.pairs.length)setTimeout(()=>App.finish({correct:this.matched,total:this.pairs.length,label:`${this.attempts} tentativas`}),450)}else{this.locked=true;Sound.play('wrong');this.timer=setTimeout(()=>{a.button.classList.remove('open');b.button.classList.remove('open');this.open=[];this.locked=false},750)}}
+  };
+}());

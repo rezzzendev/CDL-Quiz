@@ -1,0 +1,10 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Testes</title><body><pre id="out"></pre><script src="../js/data/content.js"></script><script>
+const results=[];const test=(name,fn)=>{try{fn();results.push('✓ '+name)}catch(e){results.push('✗ '+name+' — '+e.message)}};const ok=(v,m)=>{if(!v)throw Error(m)};
+test('10 temas disponíveis',()=>ok(GAME_DATA.themes.length===10,'quantidade incorreta'));
+test('5 jogos disponíveis',()=>ok(GAME_DATA.games.length===5,'quantidade incorreta'));
+test('conteúdo mínimo por tema',()=>GAME_DATA.themes.forEach(t=>{ok(t.words.length>=6,t.name+' palavras');ok(t.pairs.length>=6,t.name+' pares');ok(t.quiz.length>=5,t.name+' quiz');ok(t.statements.length>=8,t.name+' afirmações')}));
+test('perguntas válidas',()=>GAME_DATA.themes.flatMap(t=>t.quiz).forEach(q=>{ok(q.options.length===4,'alternativas');ok(q.answer>=0&&q.answer<4,'resposta');ok(q.explanation.length>20,'explicação')}));
+test('afirmações válidas',()=>GAME_DATA.themes.flatMap(t=>t.statements).forEach(s=>ok(typeof s.answer==='boolean','resposta booleana')));
+test('identificadores únicos',()=>{const ids=GAME_DATA.themes.map(t=>t.id);ok(new Set(ids).size===ids.length,'tema duplicado')});
+out.textContent=results.join('\n')+'\n\n'+(results.every(x=>x.startsWith('✓'))?'TODOS OS TESTES PASSARAM':'HÁ FALHAS');
+</script></body></html>

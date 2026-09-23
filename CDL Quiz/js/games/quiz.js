@@ -1,0 +1,8 @@
+(function(){
+  'use strict'; window.Games=window.Games||{};
+  Games.quiz={
+    init(stage,theme){this.stage=stage;this.items=UI.shuffle(theme.quiz).slice(0,5);this.index=0;this.correct=0;this.locked=false;this.render()},destroy(){this.stage=null},
+    render(){const item=this.items[this.index];this.locked=false;this.stage.innerHTML=`<div class="question-meta"><span>Pergunta ${this.index+1} de ${this.items.length}</span><span>${this.correct} acertos</span></div>${UI.renderProgress(this.index,this.items.length)}<h2 class="question"></h2><div class="answers"></div><div class="feedback"></div>`;this.stage.querySelector('.question').textContent=item.text;const answers=this.stage.querySelector('.answers');item.options.forEach((text,i)=>{const b=UI.el('button','answer-button',text);b.dataset.index=i;b.onclick=()=>this.answer(i,b);answers.append(b)})},
+    answer(index,button){if(this.locked)return;this.locked=true;const item=this.items[this.index],buttons=[...this.stage.querySelectorAll('.answer-button')],ok=index===item.answer;buttons.forEach((b,i)=>{b.disabled=true;if(i===item.answer)b.classList.add('correct')});if(!ok)button.classList.add('wrong');else{this.correct++;App.addScore(100,button);Sound.play('correct')}if(!ok)Sound.play('wrong');const feedback=this.stage.querySelector('.feedback');const exp=UI.el('div','explanation',item.explanation);const row=UI.el('div','action-row');const next=UI.el('button','primary-button',this.index===this.items.length-1?'Ver resultado':'Próxima pergunta');next.onclick=()=>{this.index++;if(this.index>=this.items.length)App.finish({correct:this.correct,total:this.items.length});else this.render()};row.append(next);feedback.append(exp,row);next.focus()}
+  };
+}());
